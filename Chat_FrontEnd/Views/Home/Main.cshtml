@@ -303,7 +303,7 @@ p{
             li.addEventListener('click', function handleClick(event) 
             {
               LoadMessages();
-              LoadPages();
+              //LoadPages();
               console.log('chat selected 🎉🎉🎉', li.innerText);
               selected=document.getElementById('chat_name');
               selected.innerHTML = li.innerText;
@@ -319,7 +319,6 @@ p{
             function LoadPages()
             {
              var pages_number =  document.getElementById('chat_id');
-
              fetch("https:localhost:7069/api/messages/pages/?id=" + pages_number.innerText)
             .then(response => 
             {return response.json(); } )
@@ -332,7 +331,6 @@ p{
                 })
             
             }
-
            function LoadMessages()
            {
             var number =  document.getElementById('chat_id');
