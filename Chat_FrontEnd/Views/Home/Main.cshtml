@@ -1,0 +1,99 @@
+﻿@using Chat_FrontEnd.ObjectModel
+@model UserModel
+
+<body>
+
+    <p>Hello @Model.userName !</p>
+
+
+    <div id="all_chats"></div>
+
+       <p id="chat_name">select a chat</p>
+       <p id="chat_id">select a chat</p>
+       <div class="dropdown" >
+  <span>page</span>
+  <div class="dropdown-content" id="pages_count">
+  </div>
+</div>
+
+         <div id="all_messages">
+  </div>
+
+<input type="text" id="message_body"
+       minlength="4" maxlength="8" size="10">
+       <button onclick="sendOnClick()">Send</button>
+
+           <script type="text/javascript">
+               
+                function sendOnClick(){
+
+                   let chatId = document.getElementById('chat_id');
+                   let message_body = document.getElementById('message_body');
+
+                   let xhr = new XMLHttpRequest();
+                    xhr.open("POST", "https://localhost:7069/api/messages");
+
+                    xhr.setRequestHeader("Accept", "application/json");
+                    xhr.setRequestHeader("Content-Type", "application/json");
+
+                    xhr.onload = () => console.log(xhr.responseText);
+
+
+                    let data = {"chatId": parseInt(chatId.innerText),"userId": @Model.id, "messageBody": message_body.value, "deletedForSelf": false, "messageDate":new Date().toJSON()};
+                    console.log(JSON.stringify(data));
+                    xhr.setRequestHeader("Access-Control-Allow-Origin", "GET, POST, PUT");
+                    xhr.send(JSON.stringify(data));
+               }
+
+
+
+        fetch("https://localhost:7069/api/chats")
+        .then(response => 
+        {
+            return response.json();
+        })
+        .then(data => 
+        {
+            const chats = data;
+            console.log(chats);
+        
+           ul =  document.getElementById('all_chats', {mode: 'no-cors'});
+           chats.forEach(item => 
+            {
+            let li = document.createElement('p');
+            ul.appendChild(li);
+           
+            li.innerHTML += item.chatName;
+            li.addEventListener('click', function handleClick(event) 
+            {
+              console.log('chat selected 🎉🎉🎉', li.innerText);
+              selected=document.getElementById('chat_name');
+              selected.innerHTML = li.innerText;
+              selected=document.getElementById('chat_id');
+              selected.innerHTML = item.id;
+            });
+                    }
+                );
+            });
+
+        
+
+            var number =  document.getElementById('chat_id');
+             fetch("https://localhost:7069/api/messages/?id=" + number.innerText)
+            .then(response => 
+            {return response.json(); } )
+            .then(data => 
+            {const chats = data; console.log(chats); ul =  document.getElementById('pages_count'); console.log(ul);
+               for (let i = 0; i < ul; i++) 
+               {
+                var li = document.createElement('p');
+                ul.appendChild(li);
+                li.innerHTML = i;
+                li.addEventListener('click', function handleClick(event) 
+                                        {console.log('page selected 🎉🎉🎉', li.innerText);} );
+                }
+
+                })
+
+</script>
+</body>
