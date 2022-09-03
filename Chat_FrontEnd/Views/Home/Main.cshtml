@@ -217,6 +217,7 @@ p{
       <h1 class="logo">Hello @Model.userName!</h1>
        <h3 id="chat_name">name</h3>
        <h3 id="chat_id">id</h3>
+       <h3 id="pages_count"> </h3>
   </div>
 
   <div class="out-wrapper">  
@@ -235,24 +236,22 @@ p{
                 <div style="display: flex; align-items: center; justify-content: center;">
 
                  
-                   <div class="dropdown">
-                  <div id="pages_count"> </div>
-                </div>
+                   
               </div>
             </div>
 
 
 <div>
-
+    
+   <div id="all_messages"></div>
 
   </div>
-
      
 </div>
 
 <div>
 
-    <div id="all_messages"></div>
+   
           
 <input type="text" id="message_body">
        <button onclick="sendOnClick()">Send</button>
@@ -261,7 +260,6 @@ p{
 <p class=@Model.userName id="username" style="display:none"></p>
 
 
-       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
            <script type="text/javascript">
                
 
@@ -305,6 +303,7 @@ p{
             li.addEventListener('click', function handleClick(event) 
             {
               LoadMessages();
+              LoadPages();
               console.log('chat selected 🎉🎉🎉', li.innerText);
               selected=document.getElementById('chat_name');
               selected.innerHTML = li.innerText;
@@ -317,10 +316,27 @@ p{
             });
                    
 
+            function LoadPages()
+            {
+             var pages_number =  document.getElementById('chat_id');
+
+             fetch("https:localhost:7069/api/messages/pages/?id=" + pages_number.innerText)
+            .then(response => 
+            {return response.json(); } )
+            .then(data_pn => 
+            {const pn = data_pn; console.log(pn); 
+               ul =  document.getElementById('pages_count'); console.log(ul);
+               ul.innerHTML = pn;
+               console.log(messages.length)
+               
+                })
+            
+            }
+
            function LoadMessages()
            {
             var number =  document.getElementById('chat_id');
-             fetch("https://localhost:7069/api/messages/?id=" + number.innerText)
+             fetch("https:localhost:7069/api/messages/?id=" + number.innerText)
             .then(response => 
             {return response.json(); } )
             .then(data => 

@@ -38,7 +38,8 @@ namespace Chat_Api.Controllers
         {
             List<MessageModelAPI> all_messages = mapper.Map<List<MessageModelAPI>>(service.GetAll());
             MessageModelAPI[] chat_messages = all_messages.Where(x => x.chatId == chatId).ToArray();
-            return Ok(chat_messages.Count() / 20 + 1);
+            int result = chat_messages.Count() / 20 + 1;
+            return Ok(result);
 
         }
 
