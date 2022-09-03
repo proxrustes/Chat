@@ -290,9 +290,9 @@ p{
         {
             return response.json();
         })
-        .then(data => 
+        .then(chat_data => 
         {
-            const chats = data;
+            const chats = chat_data;
             console.log(chats);
         
            ul =  document.getElementById('all_chats', {mode: 'no-cors'});
