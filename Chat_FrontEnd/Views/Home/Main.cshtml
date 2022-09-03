@@ -258,7 +258,7 @@ p{
        <button onclick="sendOnClick()">Send</button>
 </div>
 
-
+<p class=@Model.userName id="username" style="display:none"></p>
 
 
        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -277,8 +277,8 @@ p{
                     xhr.setRequestHeader("Content-Type", "application/json");
 
                     xhr.onload = () => console.log(xhr.responseText);
-
-                    let data = {"chatId": parseInt(chatId.innerText),"userName": @Model.userName, "messageBody": message_body.value, "deletedForSelf": false, "messageDate":new Date().toJSON()};
+                    let username = document.getElementById('username').className;
+                    let data = {"chatId": parseInt(chatId.innerText),"userName": username, "messageBody": message_body.value, "deletedForSelf": false, "messageDate":new Date().toJSON()};
                     console.log(JSON.stringify(data));
                     xhr.setRequestHeader("Access-Control-Allow-Origin", "GET, POST, PUT");
                     xhr.send(JSON.stringify(data));
@@ -290,9 +290,9 @@ p{
         {
             return response.json();
         })
-        .then(chat_data => 
+        .then(data => 
         {
-            const chats = chat_data;
+            const chats = data;
             console.log(chats);
         
            ul =  document.getElementById('all_chats', {mode: 'no-cors'});
@@ -332,7 +332,7 @@ p{
                {
                 var li = document.createElement('p');
                 ul.appendChild(li);
-                li.innerHTML = messages[i].messageBody + " from" + messages[i].userName + " at " + messages[i].messageDate;
+                li.innerHTML = messages[i].messageBody + " from " + messages[i].userName + " at " + messages[i].messageDate;
                 li.addEventListener('click', function handleClick(event) 
                                         {console.log('page selected 🎉🎉🎉', li.innerText);} );
                 }
