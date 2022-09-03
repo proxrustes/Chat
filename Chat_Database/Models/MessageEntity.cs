@@ -12,7 +12,8 @@ namespace Chat_Database.Models
         public int id { get; set; }
        
         public int chatId { get; set; }
-        public int userId { get; set; }
+
+        public string userName { get; set; }
 
         [Required]
         public string messageBody { get; set; }

@@ -33,7 +33,7 @@ namespace Chat_Api.Controllers
             Ok(mapper.Map<MessageModelAPI>(service.GetById(id)));
 
 
-        [HttpGet("{chatId}")]
+        [HttpGet("pages/{chatId}")]
         public IActionResult GetPages(int chatId)
         {
             List<MessageModelAPI> all_messages = mapper.Map<List<MessageModelAPI>>(service.GetAll());

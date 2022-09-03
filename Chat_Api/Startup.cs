@@ -79,6 +79,8 @@ namespace Chat_Api
             using (var serviceScope = serviceScopeFactory.CreateScope())
             {
                 var dbContext = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
+                //dbContext.Database.EnsureDeleted();
+                //dbContext.Database.EnsureCreated();
             }
         }
     }
