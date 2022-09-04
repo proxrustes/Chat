@@ -17,7 +17,9 @@ ul{
   color: white;
 }
 
-
+.btn-group{
+    height:40px;
+}
 .out-wrapper{
   display: grid;
   height: 100%;
@@ -28,7 +30,6 @@ ul{
 .side-bar {
   display: grid;
   grid-gap: 3px;
-  grid-template-rows: auto 150px;
 }
 
 .header{
@@ -54,6 +55,9 @@ ul{
         padding-left:9px;
       }
 
+      .message:hover{
+          box-shadow: 1px 1px 5px black;
+      }
 
 input {
   border: none;
@@ -106,44 +110,32 @@ input {
   cursor: pointer;
 }
 
+.dropdown {
+  position: relative;
+  display: inline;
+  width: 200px;
+}
 
-.dropdown:hover .dropdown-content {
-    display: block;
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #3b86ff;
+  z-index: 1;
+  min-width: 150px;
 }
 
 .dropdown-content a {
-     display: block;
-  color: #000000;
-  padding: 5px;
-  text-decoration: none;
+  padding: 14px 16px;
+  display: block;
 }
+
 .dropdown-content a:hover {
-    color: white;
-    background-color: darkgoldenrod;
+  background-color: #ddd;
 }
 
-
-.dropdown-content {
-  
-  display: none;
-   right: 0;
-  position: absolute;
-  background-color: #f9f9f9;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  padding: 2px 2px;
-
-  z-index: 1;
+.show {
+  display: block;
 }
-.dropdown
-{
-  height:40px;
-  width: 40px;
-
-  display: inline-block;
-  vertical-align: middle;
-}
-
 .nav-links{
   vertical-align: middle;
   margin-bottom: 0px;
@@ -206,9 +198,11 @@ background-color: darkred;
 
 
 p{
-    color:red;
+    color:black;
 }
-
+.message{
+    colour:blue;
+}
 </style>
 <body>
 
@@ -216,13 +210,15 @@ p{
  <div class="header">
       <h1 class="logo">Hello @Model.userName!</h1>
        <h3 id="chat_name">name</h3>
-       <h3 id="chat_id">id</h3>
-       <h3 id="pages_count"> </h3>
+       
   </div>
 
   <div class="out-wrapper">  
 
   <div class="side-bar" style="background-color:white; margin:5px">
+      <div class="btn-group" id="pages_btn">
+            </div>
+            <div id="message_menu"></div>
       <div id="all_chats">
             <ul>
              
@@ -243,7 +239,7 @@ p{
 
 <div>
     
-   <div id="all_messages"></div>
+   <div id="all_messages" style="background-color:yellow"></div>
 
   </div>
      
@@ -259,9 +255,18 @@ p{
 
 <p class=@Model.userName id="username" style="display:none"></p>
 
+       <p id="pages_count" style="display:none"></p>
+        <p id="current_page" style="display:none"></p>
+         <p id="current_message" style="display:none"></p>
+        <h3 id="chat_id"style="display:none">id</h3>
 
            <script type="text/javascript">
                
+               var intervalId = window.setInterval(function(){
+                    LoadPages();
+                    pn = document.getElementById("current_page");
+                    console.log("current page: " + pn.innerText)
+                    LoadMessages(pn.innerText);}, 5000);
 
                 function sendOnClick(){
 
@@ -280,9 +285,13 @@ p{
                     console.log(JSON.stringify(data));
                     xhr.setRequestHeader("Access-Control-Allow-Origin", "GET, POST, PUT");
                     xhr.send(JSON.stringify(data));
+                    LoadPages();
+                    pn = document.getElementById("pages_count");
+                    console.log("page number (pn) "  + pn.innerText);
+                    message_body.value = '';
                }
 
-
+              
         fetch("https://localhost:7069/api/chats")
         .then(response => 
         {
@@ -302,13 +311,16 @@ p{
             li.innerHTML += item.chatName;
             li.addEventListener('click', function handleClick(event) 
             {
-              LoadMessages();
-              //LoadPages();
+             
               console.log('chat selected 🎉🎉🎉', li.innerText);
               selected=document.getElementById('chat_name');
               selected.innerHTML = li.innerText;
               selected=document.getElementById('chat_id');
-              selected.innerHTML = item.id;
+              selected.innerHTML = parseInt(item.id);
+              selected=document.getElementById('current_page');
+              selected.innerHTML = 0;
+              LoadMessages(0);
+              LoadPages();
 
             });
                     }
@@ -319,40 +331,101 @@ p{
             function LoadPages()
             {
              var pages_number =  document.getElementById('chat_id');
-             fetch("https:localhost:7069/api/messages/pages/?id=" + pages_number.innerText)
+             fetch("https://localhost:7069/api/messages/pages/" + pages_number.innerText)
             .then(response => 
             {return response.json(); } )
             .then(data_pn => 
-            {const pn = data_pn; console.log(pn); 
-               ul =  document.getElementById('pages_count'); console.log(ul);
+            {const pn = data_pn; console.log("Load Pages pn: " + pn); 
+               ul =  document.getElementById('pages_count');
                ul.innerHTML = pn;
-               console.log(messages.length)
+
+                var btns =  document.getElementById('pages_btn');
+                btns.innerHTML='';
+               for(let i=0; i<pn;i++)
+               {
+                   button_page = document.createElement("button");
+                   button_page.innerHTML = i;
+                   button_page.addEventListener('click', function handleClick(event) 
+                     {LoadMessages(pn - i - 1);
+                      selected=document.getElementById('current_page');
+                   selected.innerHTML = pn - i - 1;})
+                  
+                   btns.appendChild(button_page);
+               }
                
+
                 })
             
             }
-           function LoadMessages()
+        
+           function LoadMessages(page)
            {
-            var number =  document.getElementById('chat_id');
-             fetch("https:localhost:7069/api/messages/?id=" + number.innerText)
-            .then(response => 
-            {return response.json(); } )
-            .then(data => 
-            {const messages = data; console.log(messages); 
-               ul =  document.getElementById('all_messages'); console.log(ul);
-               ul.innerHTML='';
-               console.log(messages.length)
-               for (let i = 0; i < messages.length; i++) 
-               {
-                var li = document.createElement('p');
-                ul.appendChild(li);
-                li.innerHTML = messages[i].messageBody + " from " + messages[i].userName + " at " + messages[i].messageDate;
-                li.addEventListener('click', function handleClick(event) 
-                                        {console.log('page selected 🎉🎉🎉', li.innerText);} );
+               var message_menu = document.getElementById('message_menu');
+                    var ddlist = document.createElement('div');
+                    ddlist.classList.add("message-menu-content");
+
+                    var reply = document.createElement('p');
+                    reply.innerText = "reply to group";
+
+                    var reply_pr = document.createElement('p');
+                    reply_pr.innerText = "reply to pm";
+
+                    var edit = document.createElement('p');
+                    edit.innerText = "edit";
+
+                    var delete_all = document.createElement('p');
+                    delete_all.innerText = "delete";
+                    delete_all.innerText = "delete";
+                    
+                    var delete_self = document.createElement('p');
+                    delete_self.innerText = "delete for sef";
+                    
+                    ddlist.appendChild(reply);
+                    ddlist.appendChild(reply_pr);
+                    ddlist.appendChild(edit);
+                    ddlist.appendChild(delete_all);
+                    ddlist.appendChild(delete_self);
+                    
+                    message_menu.innerHTML="";
+                    message_menu.appendChild(ddlist);
+    
+                var number =  document.getElementById('chat_id');
+                
+                fetch("https://localhost:7069/api/messages/" + number.textContent + "/" + page)
+                .then(response => {return response.json(); } )
+                .then(data => 
+                {const messages = data; 
+                        let username = document.getElementById('username').className;
+    
+                        ul =  document.getElementById('all_messages'); 
+                        ul.innerHTML='';
+    
+                        for (let i = 0; i < messages.length; i++) 
+                           {
+                            var li = document.createElement('p');
+                            ul.appendChild(li);
+                            li.id=i;
+                            li.classList.add("message");
+                            li.innerHTML = messages[i].messageBody + " from " + messages[i].userName + " at " + messages[i].messageDate;
+                            //li.addEventListener('click', function handleClick(event) 
+                            //                        {console.log('message selected 🎉🎉🎉', li.id);} );
+                            }
                 }
-                })
-            
-           }
+              
+         );
+            const wrapper = document.getElementById('all_messages');
+
+            wrapper.addEventListener('click', (event) => {
+              const isButton = event.target.nodeName === 'P';
+              if (!isButton) {
+                return;
+              }
+              var current_message = document.getElementById('current_message');
+               current_message.InnterHTML = event.target.id;
+               console.log(current_message.InnterHTML)
+            })
+              
+       }
 
 </script>
 </body>
